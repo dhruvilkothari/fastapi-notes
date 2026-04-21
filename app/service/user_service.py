@@ -1,3 +1,5 @@
+import token
+
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from starlette import status
@@ -9,6 +11,8 @@ from app.repository.user_repo import  create_user_db
 from app.repository.user_repo import  get_all_user_db, get_user_by_email
 from sqlalchemy.exc import IntegrityError
 from app.security.hash_password import  get_password_hash, verify_password
+from app.security.jwt_token import create_access_token
+
 
 def create_user(db, req: Request, res: Response, user: User):
     try:
@@ -67,7 +71,12 @@ def login_user(req: Request, res: Response, user_login: UserLogin, db: Session):
             )
         )
     return send_success_response(
-        user_entity
+        {
+            "user": user_entity,
+            "token": create_access_token(
+                {"id": user_entity.id}
+            )
+        }
     )
 
 
