@@ -27,3 +27,10 @@ class User(BaseModel):
                 "active": False
             }
         }
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=6, max_length=50, description="User's password")
+
+    class Config:
+        from_attributes = True
