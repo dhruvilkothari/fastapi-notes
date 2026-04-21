@@ -3,7 +3,7 @@ from psycopg2._psycopg import List
 from sqlalchemy.orm import Session
 
 from app.dto.user import User
-from app.entity.userEntity import User
+from app.entity.userEntity import User as UserEntity
 
 
 
@@ -18,5 +18,8 @@ def create_user_db(db, req: Request, user: User):
 
 
 def get_all_user_db(db: Session, skip: int = 0, limit: int = 100):
-    li = db.query(User).offset(skip).limit(limit).all()
+    li = db.query(UserEntity).offset(skip).limit(limit).all()
     return li
+
+def get_user_by_email(db: Session, email: str):
+    return db.query(UserEntity).filter(UserEntity.email == email).first()

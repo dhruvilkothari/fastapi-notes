@@ -6,9 +6,9 @@ from app.responses.responses import  send_success_response, send_failure_respons
 from app.dto.user import User, UserLogin
 from app.entity.userEntity import User as UserEntity
 from app.repository.user_repo import  create_user_db
-from app.repository.user_repo import  get_all_user_db
+from app.repository.user_repo import  get_all_user_db, get_user_by_email
 from sqlalchemy.exc import IntegrityError
-from app.security.hash_password import  get_password_hash
+from app.security.hash_password import  get_password_hash, verify_password
 
 def create_user(db, req: Request, res: Response, user: User):
     try:
@@ -45,6 +45,30 @@ def get_all_user(db: Session, skip: int = 0, limit: int = 100):
 
     return get_all_user_db(db, skip=skip, limit=limit)
 
-def login_user(req: Request, res: Response, user_login: UserLogin):
+def login_user(req: Request, res: Response, user_login: UserLogin, db: Session):
     email = user_login.email
     password = user_login.password
+
+    user_entity: UserEntity = get_user_by_email(db, email)
+    print(user_entity)
+    if not user_entity:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=send_failure_response(
+                data= "User not found",
+            )
+        )
+    flag = verify_password(password, user_entity.password)
+    if not flag:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=send_failure_response(
+                data="User not found",
+            )
+        )
+    return send_success_response(
+        user_entity
+    )
+
+
+
