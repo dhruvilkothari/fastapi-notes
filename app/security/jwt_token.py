@@ -1,9 +1,11 @@
-from fastapi import FastAPI, status, HTTPException
+
+from fastapi import FastAPI, status, HTTPException, Request
 
 import jwt
 from datetime import datetime, timedelta, timezone
 
 from starlette import status
+from starlette.responses import JSONResponse
 
 SECRET_KEY = "your-very-secret-key"
 ALGORITHM = "HS256"
@@ -18,10 +20,21 @@ def create_access_token(data: dict):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-def verify_token(token: str):
+def verify_token(req: Request):
     try:
-        payload = jwt.decode(token, SECRET_KEY)
-        return
+        token = req.headers.get("authorization")
+        if not token:
+            return  JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={
+                    "message": "Authentication credentials were not provided."
+                }
+            )
+        token = token.split(" ")[1]
+
+
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        return payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

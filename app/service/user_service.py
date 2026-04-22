@@ -26,7 +26,7 @@ def create_user(db, req: Request, res: Response, user: User):
         p = p.split(":")[-1]
         data_val = p.split(".")[-1]
         print(p)
-        db.rollback()  # VERY IMPORTANT
+        db.rollback()
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content=send_failure_response(
@@ -80,4 +80,5 @@ def login_user(req: Request, res: Response, user_login: UserLogin, db: Session):
     )
 
 
-
+def update_user_db(db, req, res, user_id, user_update):
+    return None

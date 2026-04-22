@@ -34,3 +34,11 @@ class UserLogin(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UserUpdate(BaseModel):
+    name: str = Field(min_length=5, max_length=50, description="User's name" )
+    age: int = Field(ge=18, le= 80, description="User's age")
+
+    class Config:
+        from_attributes = True

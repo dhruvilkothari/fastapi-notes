@@ -2,10 +2,11 @@ from fastapi import APIRouter, Request, Response, Depends
 from fastapi.responses import  JSONResponse
 from sqlalchemy.orm import Session
 from starlette import status
-from app.dto.user import User, UserLogin
+from app.dto.user import User, UserLogin, UserUpdate
 from app.responses.responses import send_success_response
 from app.db.database import get_db
 from app.service import user_service
+from app.security.jwt_token import verify_token
 
 router = APIRouter(
     prefix="/user",
@@ -27,3 +28,8 @@ def get_all_user(db: Session = Depends(get_db), offset: int = 0, limit: int = 10
 @router.post("/login")
 def login(req: Request, res: Response, user_login: UserLogin, db = Depends(get_db)):
     return user_service.login_user(req, res, user_login, db)
+
+@router.patch("/update")
+def update_user(req: Request, res: Response, user_update: UserUpdate, db = Depends(get_db), user_id: int = Depends(verify_token) ):
+
+    return user_service.update_user_db(db, req, res, user_id, user_update)
